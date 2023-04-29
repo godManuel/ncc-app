@@ -9,12 +9,19 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    trim: true,
-    required: [true, "Please provide a valid email address"],
+    // match: [
+    //   /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+s/,
+    //   "Please add a valid email",
+    // ],
+    required: [true, "Please provide an email address"],
   },
   password: {
     type: String,
     required: [true, "Please provide a password"],
+    match: [
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      "Password must be 8 characters or more with a combination of letters and numbers",
+    ],
     select: false,
   },
   resetPasswordToken: String,
