@@ -194,8 +194,6 @@ exports.verifyOTP = asyncHandler(async (req, res, next) => {
 
   await user.save();
 
-  console.log(user);
-
   const token = user.getSignedToken();
 
   res.status(200).json({

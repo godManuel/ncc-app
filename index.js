@@ -3,7 +3,9 @@ const app = express();
 require("dotenv").config();
 
 // Import routes
+const home = require("./routes/index");
 const auth = require("./routes/auth");
+const users = require("./routes/users");
 
 // Middlewares
 const errorHandler = require("./middleware/error");
@@ -18,7 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mount routes
+app.use("/", home);
 app.use("/api/v1/auth", auth);
+app.use("/api/v1/users", users);
 
 // Mount middlewares
 app.use(notFound);

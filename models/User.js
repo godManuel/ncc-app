@@ -4,7 +4,6 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { options } = require("../routes/auth");
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -74,7 +73,7 @@ userSchema.methods.getResetPasswordToken = function () {
 
 // Generate user OTP link
 userSchema.methods.getOTP = async function () {
-  let otp = Math.floor(1000 + Math.random() * 9000);
+  let otp = Math.floor(100000 + Math.random() * 900000);
   otp = otp.toString();
 
   // Encrypt OTP and save in current user's database
