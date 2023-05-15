@@ -2,11 +2,6 @@ const asyncHandler = require("../middleware/async");
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/User");
-const { StatusCodes } = require("http-status-codes");
-
-exports.display = asyncHandler(async (req, res, next) => {
-  res.render("login");
-});
 
 exports.googleAuth = asyncHandler(async (req, res, next) => {
   // Instantiate a googleClient 'object' from the OAuth2Client 'class'
