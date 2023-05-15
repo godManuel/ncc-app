@@ -60,19 +60,15 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   if (!user)
     return next(new ErrorResponse("No account with the given email", 404));
 
-  const resetToken = user.getResetPasswordToken();
-  await user.save({ validateBeforeSave: false });
+  const passwordOTP = await user.getOTP();
+  await user.save();
 
-  const resetURL = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/auth/reset-password/${resetToken}`;
-
-  const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetURL}`;
+  const message = `Please validate your email account in order to recover your password \n\n ${passwordOTP}`;
 
   try {
     await sendEmail({
       email: user.email,
-      subject: "Password reset token",
+      subject: "Password OTP",
       message,
     });
 
@@ -81,56 +77,40 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
       data: {
         email: user.email,
         verified: user.isVerified,
-        message: "Good! A forgot password link has been sent to your mail",
+        message:
+          "Good! An OTP for password recovery has been sent to your mail",
       },
     });
   } catch (error) {
     console.log(error);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.otpToken = undefined;
+    user.otpExpire = undefined;
 
     await user.save({ validateBeforeSave: false });
 
     return next(new ErrorResponse("Email could not be sent", 500));
   }
-
-  // res.status(200).json({ user });
 });
 
 // @DESC        Reset password
 // @ROUTE       POST  /api/auth/reset-password/:resetToken
 // @ACCESS      Public
 exports.resetPassword = asyncHandler(async (req, res, next) => {
-  const resetPasswordToken = await crypto
-    .createHash("sha256")
-    .update(req.params.resetToken)
-    .digest("hex");
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return next(new ErrorResponse("User not found", 404));
 
-  const user = await User.findOne({
-    resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() },
-  });
+  if (user.otpToken) return next(new ErrorResponse("OTP not verified yet!"));
 
-  if (!user)
-    return next(
-      new ErrorResponse(
-        "Link expired! Request another password reset link",
-        400
-      )
-    );
-
+  // Change user password
   user.password = req.body.password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
   await user.save();
 
-  const token = user.getSignedToken();
-
   res.status(200).json({
+    success: true,
     data: {
       email: user.email,
       verified: user.isVerified,
-      message: "Good! Your password has been changed",
+      message: "Good! Your password has been recovered",
     },
   });
 });
