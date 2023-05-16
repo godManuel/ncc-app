@@ -4,6 +4,7 @@ require("dotenv").config();
 
 // Import routes
 const home = require("./routes/index");
+const googleAuth = require("./routes/google-auth");
 const auth = require("./routes/auth");
 const users = require("./routes/users");
 
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Mount routes
 app.use("/", home);
+app.use("/api/v1/google-auth", googleAuth);
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/users", users);
 
