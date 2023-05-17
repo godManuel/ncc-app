@@ -36,7 +36,7 @@ exports.googleAuth = asyncHandler(async (req, res, next) => {
       process.env.JWT_KEY
     );
 
-    return res.status(StatusCodes.OK).json({ success: true, data: userToken });
+    return res.status(200).json({ success: true, data: userToken });
   }
   // Falsy -> Create a new user, store in database & create a new JWT
 
@@ -57,5 +57,5 @@ exports.googleAuth = asyncHandler(async (req, res, next) => {
     process.env.JWT_KEY
   );
 
-  res.status(StatusCodes.CREATED).json({ success: true, data: userToken });
+  res.status(201).json({ success: true, data: userToken });
 });
