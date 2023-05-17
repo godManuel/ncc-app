@@ -30,7 +30,7 @@ exports.googleAuth = asyncHandler(async (req, res, next) => {
       {
         email: payload.email,
         name: payload.name,
-        avatar: payload.avatar,
+        avatar: payload.picture,
         provider: payload.provider,
       },
       process.env.JWT_KEY
@@ -42,17 +42,19 @@ exports.googleAuth = asyncHandler(async (req, res, next) => {
 
   user = await User.create({
     email: payload.email,
-    avatar: payload.picture,
     name: payload.name,
+    avatar: payload.picture,
+    provider: payload.provider,
   });
 
   await user.save();
 
   const userToken = jwt.sign(
     {
-      email: user.email,
-      name: user.name,
-      avatar: user.avatar,
+      email: payload.email,
+      name: payload.name,
+      avatar: payload.picture,
+      provider: payload.provider,
     },
     process.env.JWT_KEY
   );
