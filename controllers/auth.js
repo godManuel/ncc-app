@@ -47,7 +47,7 @@ exports.login = asyncHandler(async (req, res, next) => {
       email: user.email,
       verified: user.isVerified,
       message: "Good! Proceed to OTP verification",
-      token
+      token,
     },
   });
 });

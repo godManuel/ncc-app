@@ -31,6 +31,7 @@ exports.googleAuth = asyncHandler(async (req, res, next) => {
         email: payload.email,
         name: payload.name,
         avatar: payload.avatar,
+        provider: payload.provider,
       },
       process.env.JWT_KEY
     );
