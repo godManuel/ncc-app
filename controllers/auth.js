@@ -1,12 +1,12 @@
-const { User } = require("../models/User");
-const asyncHandler = require("../middleware/async");
-const ErrorResponse = require("../utils/errorResponse");
-const sendEmail = require("../utils/sendEmail");
+import { User } from "../models/User.js";
+import asyncHandler from "../middleware/async.js";
+import ErrorResponse from "../utils/errorResponse.js";
+import sendEmail from "../utils/sendEmail.js";
 
 // @DESC        Register user
 // @ROUTE       POST  /api/auth/register
 // @ACCESS      Public
-exports.register = asyncHandler(async (req, res, next) => {
+const register = asyncHandler(async (req, res, next) => {
   let user = await User.findOne({ email: req.body.email });
 
   user = await User.create(req.body);
@@ -26,7 +26,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 // @DESC        Login user
 // @ROUTE       POST  /api/auth/login
 // @ACCESS      Public
-exports.login = asyncHandler(async (req, res, next) => {
+const login = asyncHandler(async (req, res, next) => {
   if (!req.body.email || !req.body.password) {
     return next(new ErrorResponse("Please enter an email and password", 400));
   }
@@ -55,7 +55,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 // @DESC        Forgot password
 // @ROUTE       POST  /api/auth/forgot-password
 // @ACCESS      Public
-exports.forgotPassword = asyncHandler(async (req, res, next) => {
+const forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user)
     return next(new ErrorResponse("No account with the given email", 404));
@@ -95,7 +95,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 // @DESC        Reset password
 // @ROUTE       POST  /api/auth/reset-password/:resetToken
 // @ACCESS      Public
-exports.resetPassword = asyncHandler(async (req, res, next) => {
+const resetPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) return next(new ErrorResponse("User not found", 404));
 
@@ -118,7 +118,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 // @DESC        Get user OTP
 // @ROUTE       POST  /api/auth/get-user-otp
 // @ACCESS      Public
-exports.getOTP = asyncHandler(async (req, res, next) => {
+const getOTP = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user)
     return next(new ErrorResponse("No account with the given email", 404));
@@ -157,7 +157,7 @@ exports.getOTP = asyncHandler(async (req, res, next) => {
 // @DESC        Verify user OTP
 // @ROUTE       POST  /api/auth/verify-user-otp
 // @ACCESS      Public
-exports.verifyOTP = asyncHandler(async (req, res, next) => {
+const verifyOTP = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) return next(new ErrorResponse("User not found", 404));
 
@@ -185,3 +185,5 @@ exports.verifyOTP = asyncHandler(async (req, res, next) => {
     },
   });
 });
+
+export { register, login, forgotPassword, resetPassword, getOTP, verifyOTP };

@@ -1,7 +1,7 @@
-const asyncHandler = require("./async");
+import asyncHandler from "./async.js";
 
 const notFound = asyncHandler(async (req, res, next) => {
   res.status(404).send("Page not found!");
 });
 
-module.exports = notFound;
+export default notFound;

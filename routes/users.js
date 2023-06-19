@@ -1,9 +1,11 @@
-const express = require("express");
-const { getMe } = require("../controllers/users");
+import express from "express";
 const router = express.Router();
 
-const { protect } = require("../middleware/auth");
+import { updatePassword, updateEmail, getMe } from "../controllers/users.js";
+import { protect } from "../middleware/auth-token.js";
 
-router.get("/me", protect, getMe);
+router.route("/profile").get(protect, getMe);
+router.route("/profile/update-email").put(protect, updateEmail);
+router.route("/profile/update-password").put(protect, updatePassword);
 
-module.exports = router;
+export default router;

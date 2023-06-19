@@ -1,9 +1,9 @@
 // Built-in modules
-const crypto = require("crypto");
+import crypto from "crypto";
 // Third-party modules
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -17,10 +17,10 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    match: [
-      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-      "Password must be 8 characters or more with a combination of letters and numbers",
-    ],
+    // match: [
+    //   /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+    //   "Password must be 8 characters or more with a combination of letters and numbers",
+    // ],
     select: false,
   },
   isVerified: {
@@ -41,7 +41,6 @@ userSchema.pre("save", async function (next) {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Sign user token
@@ -90,4 +89,6 @@ userSchema.methods.verifyOTP = async function (enteredOTP) {
   return await bcrypt.compare(enteredOTP, this.otpToken);
 };
 
-exports.User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export { User };

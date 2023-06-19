@@ -1,19 +1,20 @@
-const express = require("express");
+import express from "express";
 const app = express();
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 // Import routes
-const home = require("./routes/index");
-const googleAuth = require("./routes/google-auth");
-const auth = require("./routes/auth");
-const users = require("./routes/users");
+import home from "./routes/index.js";
+import googleAuth from "./routes/google-auth.js";
+import auth from "./routes/auth.js";
+import users from "./routes/users.js";
 
 // Middlewares
-const errorHandler = require("./middleware/error");
-const notFound = require("./middleware/notFound");
+import errorHandler from "./middleware/error.js";
+import notFound from "./middleware/notFound.js";
 
 // MongoDB Connection
-const connectDB = require("./config/mongo-db");
+import connectDB from "./config/db.js";
 connectDB();
 
 // Express middlewares
@@ -30,7 +31,7 @@ app.use("/api/v1/users", users);
 app.use(notFound);
 app.use(errorHandler);
 
-const port = 8080 || process.env.PORT;
+const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
   console.log(`App server running on port ${port}`);
