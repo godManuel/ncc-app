@@ -3,6 +3,7 @@ import asyncHandler from "../middleware/async.js";
 import ErrorResponse from "../utils/errorResponse.js";
 import sendEmail from "../utils/sendEmail.js";
 import sendOTP from "../utils/sendOTP.js";
+import bcrypt from "bcryptjs";
 
 // @DESC        Login user
 // @ROUTE       POST  /api/auth/login
@@ -75,7 +76,7 @@ const register = asyncHandler(async (req, res, next) => {
 // @DESC        Verify user OTP
 // @ROUTE       POST  /api/auth/verify-user-otp
 // @ACCESS      Public
-const verifyOTP = asyncHandler(async (req, res, next) => {
+const verifyEmail = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) return next(new ErrorResponse("User not found", 404));
 
@@ -107,7 +108,7 @@ const verifyOTP = asyncHandler(async (req, res, next) => {
 // @DESC        Add name
 // @ROUTE       PUT  /api/auth/:userId/add-name
 // @ACCESS      Public
-const addUserInfo = asyncHandler(async (req, res, next) => {
+const addName = asyncHandler(async (req, res, next) => {
   let user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorResponse("User not found", 404));
 
@@ -120,6 +121,34 @@ const addUserInfo = asyncHandler(async (req, res, next) => {
       $set: {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
+      },
+    },
+    { new: true, runValidators: true }
+  );
+
+  await user.save();
+
+  res.status(200).json({ user });
+});
+
+// @DESC        Add phone number
+// @ROUTE       PUT  /api/auth/:userId/add-phone-number
+// @ACCESS      Public
+const addPhoneNumber = asyncHandler(async (req, res, next) => {
+  if (!req.body.mobile) {
+    return next(new ErrorResponse("Empty fields!", 400));
+  }
+
+  let user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorResponse("User not found", 404));
+
+  if (!user.isVerified)
+    return next(new ErrorResponse("Account not yet verified!", 400));
+
+  user = await User.findByIdAndUpdate(
+    req.params.userId,
+    {
+      $set: {
         mobile: req.body.mobile,
       },
     },
@@ -142,7 +171,7 @@ const addUserInfo = asyncHandler(async (req, res, next) => {
       data: {
         mobile: user.mobile,
         verified: user.isVerified,
-        message: "Phone number verified!",
+        message: `OTP sent to ${req.body.mobile}`,
       },
     });
   } catch (error) {
@@ -154,6 +183,46 @@ const addUserInfo = asyncHandler(async (req, res, next) => {
 
     return next(new ErrorResponse("OTP could not be sent", 500));
   }
+});
+
+// @DESC        Verify phone number
+// @ROUTE       PUT  /api/auth/:userId/add-phone-number
+// @ACCESS      Public
+const verifyPhoneNumber = asyncHandler(async (req, res, next) => {
+  let user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorResponse("User not found", 404));
+
+  const verifiedOTP = await user.verifyPhoneOTP(req.body.phoneOTP);
+  if (!verifiedOTP) return next(new ErrorResponse("Invalid OTP"));
+
+  if (user.phoneOTPExpire < Date.now()) {
+    return next(new ErrorResponse("OTP Expired! Request a new one", 400));
+  }
+
+  user.phoneOTP = undefined;
+  user.phoneOTPExpire = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    data: {
+      message: `Phone number verified! Proceed to login`,
+    },
+  });
+});
+
+// @DESC        Set password
+// @ROUTE       POST  /api/auth/:userId/set-password
+// @ACCESS      Public
+const setPassword = asyncHandler(async (req, res, next) => {
+  let user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorResponse("User not found", 404));
+
+  user.password = req.body.password;
+  await user.save();
+
+  res.status(200).json({ success: true, user });
 });
 
 // @DESC        Forgot password
@@ -263,6 +332,9 @@ export {
   login,
   forgotPassword,
   resetPassword,
-  verifyOTP,
-  addUserInfo,
+  verifyEmail,
+  addName,
+  addPhoneNumber,
+  verifyPhoneNumber,
+  setPassword,
 };
