@@ -1,3 +1,7 @@
+// Built-in modules
+import { createServer } from "http";
+
+// Third-party modules
 import express from "express";
 const app = express();
 import dotenv from "dotenv";
@@ -8,6 +12,7 @@ import home from "./routes/index.js";
 import googleAuth from "./routes/google-auth.js";
 import emailAuth from "./routes/email-auth.js";
 import users from "./routes/users.js";
+import { getIO, initIO } from "./utils/socket.js";
 
 // Middlewares
 import errorHandler from "./middleware/error.js";
@@ -31,8 +36,14 @@ app.use("/api/v1/users", users);
 app.use(notFound);
 app.use(errorHandler);
 
+const httpServer = createServer(app);
+
+initIO(httpServer);
+
 const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`App server running on port ${port}`);
 });
+
+getIO();

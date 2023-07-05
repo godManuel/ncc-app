@@ -3,7 +3,6 @@ import asyncHandler from "../middleware/async.js";
 import ErrorResponse from "../utils/errorResponse.js";
 import sendEmail from "../utils/sendEmail.js";
 import sendOTP from "../utils/sendOTP.js";
-import bcrypt from "bcryptjs";
 
 // @DESC        Login user
 // @ROUTE       POST  /api/auth/login
@@ -93,15 +92,9 @@ const verifyEmail = asyncHandler(async (req, res, next) => {
 
   await user.save();
 
-  const token = user.getSignedToken();
-
   res.status(200).json({
     success: true,
-    data: {
-      email: user.email,
-      verified: user.isVerified,
-      token,
-    },
+    user,
   });
 });
 
@@ -119,8 +112,7 @@ const addName = asyncHandler(async (req, res, next) => {
     req.params.userId,
     {
       $set: {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        name: req.body.name,
       },
     },
     { new: true, runValidators: true }
@@ -145,15 +137,15 @@ const addPhoneNumber = asyncHandler(async (req, res, next) => {
   if (!user.isVerified)
     return next(new ErrorResponse("Account not yet verified!", 400));
 
-  user = await User.findByIdAndUpdate(
-    req.params.userId,
-    {
-      $set: {
-        mobile: req.body.mobile,
-      },
-    },
-    { new: true, runValidators: true }
-  );
+  // user = await User.findByIdAndUpdate(
+  //   req.params.userId,
+  //   {
+  //     $set: {
+  //       mobile: req.body.mobile,
+  //     },
+  //   },
+  //   { new: true, runValidators: true }
+  // );
 
   const phoneOTP = await user.getPhoneOTP();
   await user.save();
