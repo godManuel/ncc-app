@@ -137,16 +137,6 @@ const addPhoneNumber = asyncHandler(async (req, res, next) => {
   if (!user.isVerified)
     return next(new ErrorResponse("Account not yet verified!", 400));
 
-  // user = await User.findByIdAndUpdate(
-  //   req.params.userId,
-  //   {
-  //     $set: {
-  //       mobile: req.body.mobile,
-  //     },
-  //   },
-  //   { new: true, runValidators: true }
-  // );
-
   const phoneOTP = await user.getPhoneOTP();
   await user.save();
 
@@ -161,8 +151,7 @@ const addPhoneNumber = asyncHandler(async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        mobile: user.mobile,
-        verified: user.isVerified,
+        user,
         message: `OTP sent to ${req.body.mobile}`,
       },
     });
@@ -191,6 +180,16 @@ const verifyPhoneNumber = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("OTP Expired! Request a new one", 400));
   }
 
+  user = await User.findByIdAndUpdate(
+    req.params.userId,
+    {
+      $set: {
+        mobile: req.body.mobile,
+      },
+    },
+    { new: true, runValidators: true }
+  );
+
   user.phoneOTP = undefined;
   user.phoneOTPExpire = undefined;
 
@@ -198,9 +197,7 @@ const verifyPhoneNumber = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: {
-      message: `Phone number verified! Proceed to login`,
-    },
+    user,
   });
 });
 
