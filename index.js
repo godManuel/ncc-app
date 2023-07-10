@@ -22,6 +22,11 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Home routes
+app.get("/", (req, res) => {
+  res.send("This is NCC Location Decoding App");
+});
+
 // Mount routes
 app.use("/", home);
 app.use("/api/v1/google-auth", googleAuth);
