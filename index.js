@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Import routes
-import home from "./routes/index.js";
 import googleAuth from "./routes/google-auth.js";
 import emailAuth from "./routes/email-auth.js";
 import users from "./routes/users.js";
@@ -28,7 +27,6 @@ app.get("/", (req, res) => {
 });
 
 // Mount routes
-app.use("/", home);
 app.use("/api/v1/google-auth", googleAuth);
 app.use("/api/v1/auth", emailAuth);
 app.use("/api/v1/users", users);
